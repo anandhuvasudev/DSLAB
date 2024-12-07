@@ -1,0 +1,79 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+struct node{
+   int data;
+
+   struct node*next;
+
+};
+struct node*head=NULL;
+
+void display(){
+        struct node*temp=head;
+        if(temp==NULL)
+        printf("Under Flow")
+        while(temp !=NULL)
+        printf("%d \n",temp ->data)
+        temp=temp->next;
+}
+
+clude<stdio.h>
+#include<stdlib.h>
+
+struct node{
+   int data;
+
+   struct node*next;
+
+};
+struct node*head=NULL;
+
+void display(){
+	struct node*temp=head;
+	if(temp==NULL)
+	printf("Under Flow")
+	while(temp !=NULL)
+	printf("%d \n",temp ->data)
+	temp=temp->next;
+}
+#include<stdio.h>
+#include<stdlib.h>
+
+struct node{
+   int data;
+
+   struct node*next;
+
+};
+struct node*head=NULL;
+
+void display(){
+        struct node*temp=head;
+        if(temp==NULL)
+        printf("Under Flow")
+        while(temp !=NULL)
+        printf("%d \n",temp ->data)
+        temp=temp->next;
+}
+
+#include<stdio.h>
+#include<stdlib.h>
+
+struct node{
+   int data;
+
+   struct node*next;
+
+};
+struct node*head=NULL;
+
+void display(){
+        struct node*temp=head;
+        if(temp==NULL)
+        printf("Under Flow")
+        while(temp !=NULL)
+        printf("%d \n",temp ->data)
+        temp=temp->next;
+}
+

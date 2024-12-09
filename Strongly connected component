@@ -1,0 +1,187 @@
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+
+#define MAX_VERTICES 36  // Support for up to 36 vertices (A-Z, 0-9)
+
+int graph[MAX_VERTICES][MAX_VERTICES] = {0};  // Adjacency matrix to store graph
+int transpose[MAX_VERTICES][MAX_VERTICES] = {0};  // Adjacency matrix for transposed graph
+int visited[MAX_VERTICES] = {0};  // Array to track visited nodes
+int finish_stack[MAX_VERTICES];  // Stack to store the finish times of nodes
+int finish_time = 0;  // Global variable for tracking finish times
+
+// Function to convert a vertex (either character or number) to an index
+int vertex_to_index(char vertex)
+{
+    if (isdigit(vertex)) {
+        return vertex - '0';  // Convert numeric characters ('0'-'9') to indices 0-9
+    } else if (isalpha(vertex)) {
+        return toupper(vertex) - 'A' + 10;  // Convert alphabetic characters ('A'-'Z') to indices 10-35
+    } else {
+        return -1;  // Invalid input
+    }
+}
+
+// Function to perform DFS on the original graph and fill finish_stack based on finishing times
+void dfs_original(int node, int vertices)
+{
+    visited[node] = 1;
+   
+    for (int i = 0; i < vertices; i++)
+    {
+        if (graph[node][i] == 1 && !visited[i])
+        {
+            dfs_original(i, vertices);
+        }
+    }
+   
+    finish_stack[finish_time++] = node;  // Store node in the finish_stack after visiting all its neighbors
+}
+
+// Function to transpose the graph (reverse all edges)
+void transpose_graph(int vertices)
+{
+    for (int i = 0; i < vertices; i++)
+    {
+        for (int j = 0; j < vertices; j++)
+        {
+            transpose[j][i] = graph[i][j];  // Reverse the direction of each edge
+        }
+    }
+}
+
+// Function to perform DFS on the transposed graph and collect SCCs
+void dfs_transposed(int node, int vertices, int* component, int* component_size)
+{
+    visited[node] = 1;
+    component[(*component_size)++] = node;  // Add node to current SCC component
+   
+    for (int i = 0; i < vertices; i++)
+    {
+        if (transpose[node][i] == 1 && !visited[i])
+        {
+            dfs_transposed(i, vertices, component, component_size);
+        }
+    }
+}
+
+// Function to find and print all Strongly Connected Components (SCCs)
+void find_sccs(int vertices)
+{
+    // Step 1: Perform DFS on the original graph to fill finish_stack
+    for (int i = 0; i < vertices; i++)
+    {
+        visited[i] = 0;  // Reset visited array
+    }
+
+    for (int i = 0; i < vertices; i++)
+    {
+        if (!visited[i])
+        {
+            dfs_original(i, vertices);
+        }
+    }
+
+    // Step 2: Transpose the graph
+    transpose_graph(vertices);
+
+    // Step 3: Perform DFS on the transposed graph in the order of finishing times
+    for (int i = 0; i < vertices; i++)
+    {
+        visited[i] = 0;  // Reset visited array
+    }
+
+    printf("Strongly Connected Components (SCCs):\n");
+
+    // Process vertices in reverse finish time order
+    for (int i = finish_time - 1; i >= 0; i--)
+    {
+        int node = finish_stack[i];
+        if (!visited[node])
+        {
+            int component[MAX_VERTICES];  // Array to store the current SCC
+            int component_size = 0;
+            dfs_transposed(node, vertices, component, &component_size);
+           
+            // Print the SCC
+            for (int j = 0; j < component_size; j++)
+            {
+                printf("%c ", (component[j] < 10) ? component[j] + '0' : component[j] - 10 + 'A');
+            }
+            printf("\n");
+        }
+    }
+}
+
+int main()
+{
+    int vertices, edges, choice;
+    char u, v;
+   
+    // Input number of vertices
+    printf("Enter number of vertices (up to 36): ");
+    scanf("%d", &vertices);
+   
+    // Ensure the number of vertices does not exceed the limit
+    if (vertices > MAX_VERTICES)
+    {
+        printf("Error: The graph can only have up to %d vertices (0-9, A-Z).\n", MAX_VERTICES);
+        return -1;
+    }
+   
+    // Initialize graph and transpose graph to 0 (no edges)
+    for (int i = 0; i < MAX_VERTICES; i++)
+    {
+        for (int j = 0; j < MAX_VERTICES; j++)
+        {
+            graph[i][j] = 0;
+            transpose[i][j] = 0;
+        }
+    }
+
+    // Input number of edges
+    printf("Enter number of edges: ");
+    scanf("%d", &edges);
+ 
+    // Input the edges (as pairs of vertices)
+    printf("Enter edges (u v) where u and v are vertices (0-9, A-Z):\n");
+    for (int i = 0; i < edges; i++)
+    {
+        scanf(" %c %c", &u, &v);  
+        int u_index = vertex_to_index(u);
+        int v_index = vertex_to_index(v);
+       
+        if (u_index == -1 || v_index == -1) {
+            printf("Invalid vertex input. Please enter vertices in the range 0-9 or A-Z.\n");
+            return -1;
+        }
+       
+        graph[u_index][v_index] = 1;  // Mark an edge from u to v
+    }
+   
+    do
+    {
+        // Display the menu and get user choice
+        printf("\nMenu:\n");
+        printf("1. Find Strongly Connected Components (SCCs)\n");
+        printf("2. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+       
+        // Execute based on user choice
+        switch (choice)
+        {
+            case 1:
+                find_sccs(vertices);
+                break;
+            case 2:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    } while (choice != 2);
+   
+    return 0;
+}
